@@ -7,19 +7,21 @@ class Product{
     const thisProduct = this;
     thisProduct.id = id;
     thisProduct.data = data;
+
     thisProduct.renderInMenu();
     thisProduct.getElements();
     thisProduct.initAccordion();
     thisProduct.initOrderForm();
     thisProduct.initAmountWidget();
     thisProduct.processOrder();
-    //console.log('new Product:', thisProduct);
+    // console.log('new Product:', thisProduct);
   }
 
   renderInMenu(){
     const thisProduct = this;
     /* generate HTML based on template */
     const generatedHTML = templates.menuProduct(thisProduct.data);
+
     /* create element using utils.createElementFromHTML */
     thisProduct.element = utils.createDOMFromHTML(generatedHTML);
     /* find menu container */

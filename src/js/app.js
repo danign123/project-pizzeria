@@ -1,6 +1,7 @@
 import {settings, select, classNames} from './settings.js';
 import Product from './components/Product.js';
 import Cart from './components/Cart.js';
+import Booking from './components/Booking.js';
 
 const app = {
   initPages: function(){
@@ -18,6 +19,8 @@ const app = {
         break;
       }
     }
+
+    console.log('pageMatchingHash', pageMatchingHash);
 
     thisApp.activatePage(pageMatchingHash);
     
@@ -94,6 +97,12 @@ const app = {
     });
   },
 
+  initBooking: function(){
+    const thisApp = this;
+    const widget = document.querySelector(select.containerOf.booking);
+    thisApp.bookingWidget = new Booking(widget);
+  },
+
   init: function(){
     const thisApp = this;
     //console.log('*** App starting ***');
@@ -101,9 +110,10 @@ const app = {
     //console.log('classNames:', classNames);
     //console.log('settings:', settings);
     //console.log('templates:', templates);
-    
+    thisApp.initPages();
     thisApp.initData();
     thisApp.initCart();
+    thisApp.initBooking();
   },
 };
 
