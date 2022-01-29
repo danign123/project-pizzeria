@@ -8,6 +8,8 @@ class Booking {
   constructor(widget){
     const thisBooking = this;
     thisBooking.widget = widget;
+
+    thisBooking.selectedTable;
     
     thisBooking.render(widget);
     thisBooking.initWidgets();
@@ -115,6 +117,38 @@ class Booking {
     }
   }
 
+  initTables(event){
+    const thisBooking = this;
+    const clickedElement = event.target;
+
+    if(clickedElement.classList.contains(classNames.booking.table) &&
+      !clickedElement.classList.contains(classNames.booking.tableBooked)){
+      clickedElement.classList.toggle(classNames.booking.tableSelected);
+      const tableId = event.target.getAttribute(settings.booking.tableIdAttribute);
+      thisBooking.selectedTable = tableId;
+    }
+    /*
+    if (!clickedElement.classList.containts(classNames.booking.tableSelected)){
+      thisBooking.selectedTable = null;
+    }
+    */
+    for(let table of thisBooking.dom.tables){
+      if(table !== clickedElement){
+        table.classList.remove(classNames.booking.tableSelected);
+      }
+    }
+
+    if(clickedElement.classList.contains(classNames.booking.tableBooked)){
+      alert('Przepraszamy, stolik jest zajęty');
+    }
+
+    for(let table of thisBooking.dom.tables){
+      if(!table.classList.contains(classNames.booking.tableSelected)){
+        table.classList.remove(classNames.booking.tableSelected);
+      }
+    }
+  }
+
   updateDOM(){
     const thisBooking = this;
 
@@ -149,6 +183,42 @@ class Booking {
     }
   }
 
+  sendBooking(){
+    const thisBooking = this;
+    const url = settings.db.url + '/' + settings.db.booking;
+    console.log('sendBooking url', url);
+    const payload = {
+      date: thisBooking.datePicker.value,
+      hour: thisBooking.hourPicker.value,
+      table: parseInt(thisBooking.selectedTable),
+      duration: parseInt(thisBooking.hoursAmount.value),
+      ppl: parseInt(thisBooking.peopleAmount.value),
+      starters: [],
+      phone: thisBooking.dom.phone.value,
+      address: thisBooking.dom.address.value,
+    };
+    for(let starter of thisBooking.dom.starters) {
+      if(starter.checked == true){
+        payload.starters.push(starter.value);
+      }
+    }
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    };
+    
+    fetch(url, options)
+      .then(function (response) {
+        return response.json();
+      }).then(function(){
+        thisBooking.makeBooked(payload.date, payload.hour, payload.duration, payload.table);
+        thisBooking.updateDOM();
+      });
+  }
+
   render(){
     const thisBooking = this;
     const generatedHTML = templates.bookingWidget();
@@ -162,6 +232,11 @@ class Booking {
     thisBooking.dom.datePicker = thisBooking.widget.querySelector(select.widgets.datePicker.wrapper);
     thisBooking.dom.hourPicker = thisBooking.widget.querySelector(select.widgets.hourPicker.wrapper);
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables);
+    thisBooking.dom.floorPlan = document.querySelector(select.booking.floorPlan);
+    thisBooking.dom.orderConfirmation = document.querySelector(select.booking.bookButton);
+    thisBooking.dom.phone = document.querySelector(select.booking.phoneNumber);
+    thisBooking.dom.address = document.querySelector(select.booking.address);
+    thisBooking.dom.starters = document.querySelectorAll(select.booking.starters);
   }
 
   initWidgets(){
@@ -172,9 +247,19 @@ class Booking {
     thisBooking.datePicker = new DatePicker(thisBooking.dom.datePicker);
     thisBooking.hourPicker = new HourPicker(thisBooking.dom.hourPicker);
     
+    thisBooking.dom.floorPlan.addEventListener('click', function(event){
+      thisBooking.initTables(event);
+    });
+
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
     });
+
+    thisBooking.dom.orderConfirmation.addEventListener('click', function(event){
+      event.preventDefault();
+      thisBooking.sendBooking();
+    });
+    
   }
 }
 
