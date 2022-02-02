@@ -51,6 +51,8 @@ class Home {
   
     thisHome.links = document.querySelectorAll('.link');
 
+    console.log('thisHome.links', thisHome.links);
+
     for(let link of thisHome.links){
       link.addEventListener('click', function(event){
         event.preventDefault;
