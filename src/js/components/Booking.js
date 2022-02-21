@@ -253,8 +253,10 @@ class Booking {
 
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
-      thisBooking.selectedTable = '';
-      thisBooking.table.classList.remove(classNames.booking.tableSelected);
+      for(let table of thisBooking.dom.tables){
+        table.classList.remove(classNames.booking.tableSelected);
+      }
+      
     });
 
     thisBooking.dom.orderConfirmation.addEventListener('click', function(event){
